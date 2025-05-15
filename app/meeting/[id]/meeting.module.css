@@ -1,140 +1,302 @@
 /* app/meeting/[id]/meeting.module.css */
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+
 .container {
-    @apply h-screen bg-gradient-to-br from-gray-900 to-gray-800 text-white flex flex-col overflow-hidden;
-  }
-  
-  .mainContent {
-    @apply flex flex-1 overflow-hidden;
-  }
-  
-  .videoGridContainer {
-    @apply flex-1 p-6 overflow-auto;
-  }
-  
-  .videoGrid {
-    @apply grid gap-4;
-  }
-  
-  .videoGridOne {
-    @apply grid-cols-1;
-  }
-  
-  .videoGridTwo {
-    @apply grid-cols-2;
-  }
-  
+  height: 100vh;
+  background-color: #202124;
+  color: #e8eaed;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  font-family: 'Roboto', sans-serif !important;
+}
+
+.videoGridContainer {
+  flex: 1;
+  padding: 16px;
+  overflow: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.videoGrid {
+  display: grid;
+  gap: 12px;
+  max-width: 1280px;
+  width: 100%;
+}
+
+.videoGridOne {
+  grid-template-columns: 1fr;
+}
+
+.videoGridTwo {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.videoGridMultiple {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+@media (min-width: 640px) {
   .videoGridMultiple {
-    @apply grid-cols-2 md:grid-cols-3 lg:grid-cols-4;
+    grid-template-columns: repeat(3, 1fr);
   }
-  
-  .participantContainer {
-    @apply relative rounded-lg overflow-hidden shadow-lg transition-transform duration-300 hover:scale-105;
+}
+
+@media (min-width: 768px) {
+  .videoGridMultiple {
+    grid-template-columns: repeat(4, 1fr);
   }
-  
+}
+
+.participantContainer {
+  position: relative;
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  background-color: #fff;
+}
+
+.participantView {
+  width: 160px;
+  height: 160px;
+  aspect-ratio: 1/1;
+  background-color: #3c4043;
+  object-fit: cover;
+}
+
+@media (min-width: 640px) {
   .participantView {
-    @apply w-full h-48 md:h-64 lg:h-80 bg-gray-700;
+    width: 200px;
+    height: 200px;
   }
-  
-  .participantName {
-    @apply absolute bottom-4 left-4 bg-black bg-opacity-60 text-white px-3 py-1 rounded-md text-sm font-semibold;
+}
+
+@media (min-width: 768px) {
+  .participantView {
+    width: 240px;
+    height: 240px;
   }
-  
-  .participantStatus {
-    @apply absolute top-4 right-4 flex gap-2;
+}
+
+@media (min-width: 1024px) {
+  .participantView {
+    width: 280px;
+    height: 280px;
   }
-  
-  .statusIcon {
-    @apply w-6 h-6 p-1 bg-gray-800 bg-opacity-70 rounded-full text-white;
+}
+
+.participantName {
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  background-color: rgba(0, 0, 0, 0.6);
+  color: #e8eaed;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.participantStatus {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: flex;
+  gap: 6px;
+}
+
+.statusIcon {
+  width: 20px;
+  height: 20px;
+  padding: 4px;
+  background-color: rgba(0, 0, 0, 0.6);
+  border-radius: 50%;
+  color: #e8eaed;
+}
+
+.controlBar {
+  background-color: #2d2f31;
+  padding: 12px;
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.2);
+  border-top: 1px solid #3c4043;
+}
+
+.button {
+  position: relative;
+  padding: 12px;
+  border-radius: 50%;
+  transition: background-color 0.2s ease;
+  cursor: pointer;
+}
+
+.button:hover {
+  background-color: #3c4043;
+}
+
+.buttonMicOn {
+  background-color: #1a73e8;
+  color: #e8eaed;
+}
+
+.buttonMicOn:hover {
+  background-color: #1557b0;
+}
+
+.buttonMicOff {
+  background-color: #d93025;
+  color: #e8eaed;
+}
+
+.buttonMicOff:hover {
+  background-color: #b71c1c;
+}
+
+.buttonCameraOn {
+  background-color: #1a73e8;
+  color: #e8eaed;
+}
+
+.buttonCameraOn:hover {
+  background-color: #1557b0;
+}
+
+.buttonCameraOff {
+  background-color: #d93025;
+  color: #e8eaed;
+}
+
+.buttonCameraOff:hover {
+  background-color: #b71c1c;
+}
+
+.buttonScreenShareOn {
+  background-color: #0f9d58;
+  color: #e8eaed;
+}
+
+.buttonScreenShareOn:hover {
+  background-color: #0a7c3f;
+}
+
+.buttonScreenShareOff {
+  background-color: #1a73e8;
+  color: #e8eaed;
+}
+
+.buttonScreenShareOff:hover {
+  background-color: #1557b0;
+}
+
+.buttonCopy {
+  background-color: #1a73e8;
+  color: #e8eaed;
+}
+
+.buttonCopy:hover {
+  background-color: #1557b0;
+}
+
+.buttonLeave {
+  background-color: #d93025;
+  color: #e8eaed;
+}
+
+.buttonLeave:hover {
+  background-color: #b71c1c;
+}
+
+.tooltip {
+  position: absolute;
+  bottom: 100%;
+  margin-bottom: 8px;
+  display: none;
+  background-color: #5f6368;
+  color: #e8eaed;
+  font-size: 12px;
+  border-radius: 4px;
+  padding: 4px 8px;
+  white-space: nowrap;
+}
+
+.button:hover .tooltip {
+  display: block;
+}
+
+.loading {
+  background-color: #202124;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.loader {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #1a73e8;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.errorContainer {
+  background-color: #202124;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+}
+
+.errorMessage {
+  color: #d93025;
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.errorButton {
+  background-color: #1a73e8;
+  color: #e8eaed;
+  padding: 8px 20px;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+.errorButton:hover {
+  background-color: #1557b0;
+}
+
+.errorLink {
+  color: #1a73e8;
+  text-decoration: underline;
+}
+
+.errorLink:hover {
+  color: #1557b0;
+}
+
+.cameraError {
+  background-color: #d93025;
+  color: #e8eaed;
+  padding: 12px;
+  text-align: center;
+  font-size: 16px;
+  font-weight: 500;
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 1000;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
   }
-  
-  .controlBar {
-    @apply bg-gray-850 p-4 flex justify-center gap-4 border-t border-gray-700 shadow-md;
-  }
-  
-  .button {
-    @apply relative p-3 rounded-full transition-all duration-200 transform hover:scale-110 focus:outline-none;
-  }
-  
-  .buttonMicOn {
-    @apply bg-blue-600 hover:bg-blue-500;
-  }
-  
-  .buttonMicOff {
-    @apply bg-red-600 hover:bg-red-500;
-  }
-  
-  .buttonCameraOn {
-    @apply bg-blue-600 hover:bg-blue-500;
-  }
-  
-  .buttonCameraOff {
-    @apply bg-red-600 hover:bg-red-500;
-  }
-  
-  .buttonScreenShareOn {
-    @apply bg-green-600 hover:bg-green-500;
-  }
-  
-  .buttonScreenShareOff {
-    @apply bg-blue-600 hover:bg-blue-500;
-  }
-  
-  .buttonParticipants {
-    @apply bg-blue-600 hover:bg-blue-500;
-  }
-  
-  .buttonLeave {
-    @apply bg-red-600 hover:bg-red-500;
-  }
-  
-  .tooltip {
-    @apply absolute bottom-full mb-2 hidden group-hover:block bg-gray-800 text-white text-xs rounded py-1 px-2;
-  }
-  
-  .sidebar {
-    @apply w-80 bg-gray-850 border-l border-gray-700 p-4 overflow-y-auto transition-all duration-300;
-  }
-  
-  .sidebarHidden {
-    @apply w-0 p-0 overflow-hidden;
-  }
-  
-  .participantList {
-    @apply flex flex-col gap-2;
-  }
-  
-  .participantItem {
-    @apply flex items-center gap-3 p-2 rounded-md hover:bg-gray-700 transition-colors;
-  }
-  
-  .participantAvatar {
-    @apply w-8 h-8 rounded-full bg-gray-600;
-  }
-  
-  .participantItemName {
-    @apply text-sm font-medium;
-  }
-  
-  .loading {
-    @apply bg-gradient-to-br from-gray-900 to-gray-800 h-screen flex items-center justify-center;
-  }
-  
-  .loader {
-    @apply w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin;
-  }
-  
-  .errorContainer {
-    @apply bg-gradient-to-br from-gray-900 to-gray-800 h-screen flex flex-col items-center justify-center gap-4;
-  }
-  
-  .errorMessage {
-    @apply text-red-400 text-lg font-semibold;
-  }
-  
-  .errorButton {
-    @apply bg-blue-600 text-white px-6 py-2 rounded-full hover:bg-blue-500 transition-colors;
-  }
-  
-  .errorLink {
-    @apply text-blue-400 underline hover:text-blue-300;
-  }
+}
