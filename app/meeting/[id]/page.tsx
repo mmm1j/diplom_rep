@@ -9,10 +9,17 @@ import {
   ParticipantView,
   StreamVideoParticipant,
 } from '@stream-io/video-react-sdk';
-import '@stream-io/video-react-sdk/dist/css/styles.css';
+// Comment out Stream SDK styles to avoid conflicts
+// import '@stream-io/video-react-sdk/dist/css/styles.css';
 import { use } from 'react';
 import { Mic, MicOff, Video, VideoOff, MonitorUp, LogOut, Copy } from 'lucide-react';
 import styles from './meeting.module.css';
+
+// Audio for join effect (chime sound)
+const joinSound = typeof Audio !== 'undefined' ? new Audio('/sounds/chime.mp3') : null;
+
+// Fallback avatar URL
+const FALLBACK_AVATAR = 'https://getstream.io/static/avatars/default-avatar.png';
 
 async function fetchStreamToken(userId: string): Promise<string> {
   console.log('Fetching Stream token for userId:', userId);
@@ -67,8 +74,14 @@ export default function MeetingPage({ params }: { params: Promise<{ id: string }
   const [retryCount, setRetryCount] = useState(0);
   const [cameraError, setCameraError] = useState<string | null>(null);
   const [copyTooltip, setCopyTooltip] = useState('Copy meeting ID');
+  const [showJoinEffect, setShowJoinEffect] = useState(false);
+  const [showJoinToast, setShowJoinToast] = useState(false);
 
   const { id } = use(params);
+
+  // Get participant's nickname and avatar
+  const participantName = user ? user.fullName || user.username || 'Anonymous' : 'Anonymous';
+  const participantAvatar = user?.imageUrl || FALLBACK_AVATAR;
 
   useEffect(() => {
     if (!isLoaded) {
@@ -98,8 +111,8 @@ export default function MeetingPage({ params }: { params: Promise<{ id: string }
         await client.connectUser(
           {
             id: user.id,
-            name: user.fullName || user.username || 'Anonymous',
-            image: user.imageUrl,
+            name: participantName,
+            image: participantAvatar,
           },
           token
         );
@@ -120,8 +133,17 @@ export default function MeetingPage({ params }: { params: Promise<{ id: string }
         console.log('Joining call with ID:', id);
         try {
           await call.join({ create: true, video: hasAccess ? undefined : false });
-          console.log('Call joined successfully');
+          console.log('Call joined successfully, triggering join effect for', participantName);
           setCall(call);
+
+          // Trigger join effect
+          setShowJoinEffect(true);
+          setShowJoinToast(true);
+          if (joinSound) {
+            joinSound.play().catch(err => console.error('Failed to play join sound:', err));
+          }
+          setTimeout(() => setShowJoinEffect(false), 1500);
+          setTimeout(() => setShowJoinToast(false), 2000);
 
           if (hasAccess) {
             try {
@@ -163,7 +185,7 @@ export default function MeetingPage({ params }: { params: Promise<{ id: string }
         client.disconnectUser();
       }
     };
-  }, [user, isLoaded, id, retryCount]);
+  }, [user, isLoaded, id, retryCount, participantName, participantAvatar]);
 
   const toggleMicrophone = async () => {
     if (call) {
@@ -232,7 +254,7 @@ export default function MeetingPage({ params }: { params: Promise<{ id: string }
     }
   };
 
-  // Deduplicate participants by userId
+  // Deduplicate and filter valid participants
   const participants = useMemo(() => {
     if (!call) return [];
     const seen = new Map<string, StreamVideoParticipant>();
@@ -241,8 +263,12 @@ export default function MeetingPage({ params }: { params: Promise<{ id: string }
         console.warn('Skipping participant with missing userId:', p);
         return;
       }
-      if (!seen.has(p.userId) || p.sessionId > (seen.get(p.userId)?.sessionId || '')) {
-        seen.set(p.userId, p);
+      if (p.userId && p.sessionId) {
+        if (!seen.has(p.userId) || p.sessionId > (seen.get(p.userId)?.sessionId || '')) {
+          seen.set(p.userId, p);
+        }
+      } else {
+        console.warn('Skipping invalid participant:', p);
       }
     });
     const uniqueParticipants = Array.from(seen.values());
@@ -251,7 +277,13 @@ export default function MeetingPage({ params }: { params: Promise<{ id: string }
       sessionId: p.sessionId,
       name: p.name,
       isLocal: p.isLocalParticipant,
+      image: p.image,
+      videoStream: !!p.videoStream,
+      audioLevel: p.audioLevel,
     })));
+    if (uniqueParticipants.length === 0) {
+      console.log('No valid participants found');
+    }
     return uniqueParticipants;
   }, [call?.state.participants]);
 
@@ -310,43 +342,50 @@ export default function MeetingPage({ params }: { params: Promise<{ id: string }
             </div>
           )}
 
+          {/* Join Toast Notification */}
+          {showJoinToast && (
+            <div className={styles.joinToast}>
+              {participantName} joined the meeting!
+            </div>
+          )}
+
           {/* Video Grid */}
-          <div className={styles.videoGridContainer}>
-            <div
-              className={`${styles.videoGrid} ${
-                participants.length === 1
-                  ? styles.videoGridOne
-                  : participants.length === 2
-                  ? styles.videoGridTwo
-                  : styles.videoGridMultiple
-              }`}
-            >
-              {participants.map((participant: StreamVideoParticipant) => (
-                <div
-                  key={participant.userId}
-                  className={styles.participantContainer}
-                >
-                  <ParticipantView
-                    participant={participant}
-                    className={styles.participantView}
-                  />
-                  <span className={styles.participantName}>
-                    {participant.name || 'Anonymous'}
-                  </span>
-                  <div className={styles.participantStatus}>
-                    {participant.audioLevel > 0 ? (
-                      <Mic className={styles.statusIcon} />
-                    ) : (
-                      <MicOff className={styles.statusIcon} />
-                    )}
-                    {participant.isLocalParticipant || participant.videoStream ? (
-                      <Video className={styles.statusIcon} />
-                    ) : (
-                      <VideoOff className={styles.statusIcon} />
-                    )}
-                  </div>
+          <div className={`${styles.videoGridContainer} ${showJoinEffect ? styles.joinEffect : ''}`}>
+            <div className={styles.videoGrid}>
+              {participants.length === 0 ? (
+                <div className={styles.noParticipants}>
+                  Waiting for participants...
                 </div>
-              ))}
+              ) : (
+                participants.map((participant: StreamVideoParticipant) => (
+                  <div
+                    key={`${participant.userId}-${participant.sessionId}`}
+                    className={styles.participantContainer}
+                  >
+                    <div className={styles.participantViewWrapper}>
+                      <ParticipantView
+                        participant={participant}
+                        className={styles.participantView}
+                      />
+                    </div>
+                    <span className={styles.participantName}>
+                      {participant.name || 'Anonymous'}
+                    </span>
+                    <div className={styles.participantStatus}>
+                      {participant.audioLevel > 0 ? (
+                        <Mic className={styles.statusIcon} />
+                      ) : (
+                        <MicOff className={styles.statusIcon} />
+                      )}
+                      {participant.videoStream ? (
+                        <Video className={styles.statusIcon} />
+                      ) : (
+                        <VideoOff className={styles.statusIcon} />
+                      )}
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
           </div>
 

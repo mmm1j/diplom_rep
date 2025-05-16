@@ -14,7 +14,8 @@
 .videoGridContainer {
   flex: 1;
   padding: 16px;
-  overflow: auto;
+  max-height: calc(100vh - 80px); /* Account for control bar (~60px) and padding */
+  overflow-y: auto;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -22,33 +23,10 @@
 
 .videoGrid {
   display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(168px, 28vw)); /* 40% increase from original */
   gap: 12px;
-  max-width: 1280px;
+  max-width: 100%;
   width: 100%;
-}
-
-.videoGridOne {
-  grid-template-columns: 1fr;
-}
-
-.videoGridTwo {
-  grid-template-columns: repeat(2, 1fr);
-}
-
-.videoGridMultiple {
-  grid-template-columns: repeat(2, 1fr);
-}
-
-@media (min-width: 640px) {
-  .videoGridMultiple {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-@media (min-width: 768px) {
-  .videoGridMultiple {
-    grid-template-columns: repeat(4, 1fr);
-  }
 }
 
 .participantContainer {
@@ -56,36 +34,41 @@
   border-radius: 6px;
   overflow: hidden;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-  background-color: #fff;
+  background-color: #3c4043;
+  max-width: 392px; /* 40% increase from original */
+  width: 100%;
+  aspect-ratio: 1/1;
+}
+
+.participantViewWrapper {
+  width: 100%;
+  aspect-ratio: 1/1;
+  background-color: #3c4043;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden; /* Prevent avatar overflow */
 }
 
 .participantView {
-  width: 160px;
-  height: 160px;
+  width: 100% !important;
+  height: 100% !important;
   aspect-ratio: 1/1;
-  background-color: #3c4043;
-  object-fit: cover;
+  background-color: #3c4043 !important;
+  object-fit: cover !important; /* Videos fill the square */
 }
 
-@media (min-width: 640px) {
-  .participantView {
-    width: 200px;
-    height: 200px;
-  }
-}
-
-@media (min-width: 768px) {
-  .participantView {
-    width: 240px;
-    height: 240px;
-  }
-}
-
-@media (min-width: 1024px) {
-  .participantView {
-    width: 280px;
-    height: 280px;
-  }
+/* Override Stream SDK avatar styles with higher specificity */
+:where(.str-video__participant-avatar),
+:where(.str-video__participant-avatar img) {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100% !important; /* Ensure no oversizing */
+  max-height: 100% !important;
+  object-fit: contain !important; /* Avatars fit fully without cropping */
+  border-radius: 0 !important;
+  display: block; /* Prevent inline spacing issues */
+  margin: 0 auto; /* Center avatar */
 }
 
 .participantName {
@@ -96,13 +79,13 @@
   color: #e8eaed;
   padding: 4px 8px;
   border-radius: 4px;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 500;
 }
 
 .participantStatus {
   position: absolute;
-  top: 8px;
+  bottom: 8px;
   right: 8px;
   display: flex;
   gap: 6px;
@@ -112,7 +95,7 @@
   width: 20px;
   height: 20px;
   padding: 4px;
-  background-color: rgba(0, 0, 0, 0.6);
+  background-color: rgba(0, 0, 0, 0.7);
   border-radius: 50%;
   color: #e8eaed;
 }
@@ -293,6 +276,67 @@
   top: 0;
   width: 100%;
   z-index: 1000;
+}
+
+.joinEffect {
+  animation: pulse 1.5s ease-in-out;
+}
+
+.joinToast {
+  position: fixed;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #1a73e8;
+  color: #e8eaed;
+  padding: 12px 24px;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: 500;
+  z-index: 1001;
+  animation: fadeInOut 2s ease-in-out;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  min-width: 200px;
+  text-align: center;
+}
+
+.noParticipants {
+  color: #e8eaed;
+  font-size: 16px;
+  font-weight: 500;
+  text-align: center;
+  padding: 20px;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(26, 115, 232, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 0 15px rgba(26, 115, 232, 0.3);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(26, 115, 232, 0);
+  }
+}
+
+@keyframes fadeInOut {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -10px);
+  }
+  20% {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+  80% {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -10px);
+  }
 }
 
 @keyframes spin {
